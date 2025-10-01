@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import extract, func
 from collections import Counter
 from datetime import datetime, time, date, timedelta
-import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"         
@@ -904,5 +903,10 @@ if __name__ == '__main__':
             print("✅ Default admin created! Username: admin | Password: admin123")
         
         db.session.commit()
-    app.run(debug=True)
+
+    # Render requires dynamic PORT
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
+
 
