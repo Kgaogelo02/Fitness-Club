@@ -1,0 +1,42 @@
+{% extends "base.html" %}   <!-- Inherit from the base template -->
+
+{% block content %}
+<h2>Edit Trainer</h2>
+
+<div class="form-container">
+    <!-- Form for editing an existing trainer -->
+    <!-- Submits to the Flask route edit_trainer with trainer.id -->
+    <form method="POST" action="{{ url_for('edit_trainer', id=trainer.id) }}">
+        
+        <!-- Trainer Name Input -->
+        <!-- Pre-fills the input with the trainer's current name -->
+        <input type="text" name="name" value="{{ trainer.name }}" required>
+        
+        <!-- Trainer Specialty Dropdown -->
+        <!-- Pre-selects the current specialty of the trainer -->
+        <select name="specialty" required>
+            <option value="">Select Specialty</option>
+            <option value="Personal Training" {% if trainer.specialty == 'Personal Training' %}selected{% endif %}>Personal Training</option>
+            <option value="Yoga" {% if trainer.specialty == 'Yoga' %}selected{% endif %}>Yoga</option>
+            <option value="Pilates" {% if trainer.specialty == 'Pilates' %}selected{% endif %}>Pilates</option>
+            <option value="CrossFit" {% if trainer.specialty == 'CrossFit' %}selected{% endif %}>CrossFit</option>
+            <option value="Weightlifting" {% if trainer.specialty == 'Weightlifting' %}selected{% endif %}>Weightlifting</option>
+            <option value="Cardio" {% if trainer.specialty == 'Cardio' %}selected{% endif %}>Cardio</option>
+            <option value="Boxing" {% if trainer.specialty == 'Boxing' %}selected{% endif %}>Boxing</option>
+            <option value="Martial Arts" {% if trainer.specialty == 'Martial Arts' %}selected{% endif %}>Martial Arts</option>
+            <option value="Dance" {% if trainer.specialty == 'Dance' %}selected{% endif %}>Dance</option>
+            <option value="Nutrition" {% if trainer.specialty == 'Nutrition' %}selected{% endif %}>Nutrition</option>
+            <option value="Rehabilitation" {% if trainer.specialty == 'Rehabilitation' %}selected{% endif %}>Rehabilitation</option>
+            <option value="Senior Fitness" {% if trainer.specialty == 'Senior Fitness' %}selected{% endif %}>Senior Fitness</option>
+        </select>
+        
+        <!-- Contact Information Input -->
+        <!-- Pre-fills with the trainer's current contact info -->
+        <input type="text" name="contact" value="{{ trainer.contact }}" required>
+        
+        <!-- Submit Button -->
+        <button type="submit">Update Trainer</button>
+    </form>
+</div>
+{% endblock %}
+

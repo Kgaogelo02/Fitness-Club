@@ -1,0 +1,46 @@
+{% extends "base.html" %}   <!-- Inherit from the base layout -->
+
+{% block content %}
+<h1>Edit Payment</h1>
+
+<div class="form-container">
+    <!-- Form for editing an existing payment -->
+    <!-- Action calls Flask route edit_payment with the specific payment.id -->
+    <form action="{{ url_for('edit_payment', id=payment.id) }}" method="POST">
+        
+        <!-- Member Dropdown -->
+        <!-- Pre-selects the member who made this payment -->
+        <label>Member</label>
+        <select name="member_id" required>
+            {% for m in members %}
+            <option value="{{ m.id }}" {% if payment.member_id == m.id %}selected{% endif %}>
+                {{ m.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <!-- Payment Amount Field -->
+        <!-- step="0.01" ensures decimal values allowed for cents -->
+        <label>Amount</label>
+        <input type="number" step="0.01" name="amount" value="{{ payment.amount }}" required>
+
+        <!-- Payment Date Field -->
+        <!-- Pre-filled with the stored payment.date -->
+        <label>Date</label>
+        <input type="date" name="date" value="{{ payment.date }}" required>
+
+        <!-- Payment Method Dropdown -->
+        <!-- Automatically selects the method used in the existing record -->
+        <label>Payment Method</label>
+        <select name="method" required>
+            <option value="Cash" {% if payment.method=='Cash' %}selected{% endif %}>Cash</option>
+            <option value="Card" {% if payment.method=='Card' %}selected{% endif %}>Card</option>
+            <option value="EFT" {% if payment.method=='EFT' %}selected{% endif %}>EFT</option>
+        </select>
+
+        <!-- Submit Button -->
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+{% endblock %}
+

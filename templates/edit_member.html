@@ -1,0 +1,64 @@
+{% extends "base.html" %}   <!-- Inherit from base layout -->
+
+{% block content %}
+<h1>Edit Member</h1>
+
+<div class="form-container">
+    <!-- Form to update member details -->
+    <form method="POST" action="{{ url_for('edit_member', id=member.id) }}">
+        
+        <!-- Full Name Field -->
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" value="{{ member.name }}" required>
+
+        <!-- Membership Type Dropdown -->
+        <!-- onchange triggers JavaScript function to toggle expiry requirement -->
+        <label for="membership_type">Membership Type</label>
+        <select id="membership_type" name="membership_type" required onchange="toggleExpiry(this.value)">
+            <option value="Monthly" {% if member.membership_type == 'Monthly' %}selected{% endif %}>Monthly</option>
+            <option value="Quarterly" {% if member.membership_type == 'Quarterly' %}selected{% endif %}>Quarterly</option>
+            <option value="Yearly" {% if member.membership_type == 'Yearly' %}selected{% endif %}>Yearly</option>
+            <option value="Custom" {% if member.membership_type == 'Custom' %}selected{% endif %}>Custom</option>
+        </select>
+
+        <!-- Phone Number Field -->
+        <!-- Pattern ensures SA-style 10-digit numbers starting with 0 -->
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" value="{{ member.phone or '' }}" 
+               placeholder="0123456789" pattern="[0]{1}[0-9]{9}">
+        <small style="color: #666;">Format: 0123456789 (10 digits starting with 0)</small>
+
+        <!-- Expiry Date (conditionally required for "Custom") -->
+        <div id="expiry-container" style="margin-top:10px;">
+            <label for="expiry">Expiry Date</label>
+            <input type="date" id="expiry" name="expiry"
+                   value="{{ member.expiry_date.strftime('%Y-%m-%d') }}">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+
+<script>
+// Function to toggle expiry date requirement based on membership type
+function toggleExpiry(value) {
+    const expiryContainer = document.getElementById("expiry-container");
+    const expiryInput = document.getElementById("expiry");
+    expiryContainer.style.display = "block"; // keep visible but requirement changes
+    if (value === "Custom") {
+        expiryInput.required = true; // only required if custom
+    } else {
+        expiryInput.required = false;
+    }
+}
+
+// Run toggleExpiry on page load to apply correct state
+document.addEventListener("DOMContentLoaded", function() {
+    toggleExpiry(document.getElementById("membership_type").value);
+});
+</script>
+{% endblock %}
+
+
+

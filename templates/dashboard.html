@@ -1,0 +1,236 @@
+{% extends "base.html" %}  
+{# Inherit sidebar, layout, and flash messages from base.html #}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<!-- DASHBOARD SUMMARY CARDS -->
+<div class="dashboard-cards">
+    <div class="card">
+        <h3>Total Members</h3>
+        <p>{{ total_members }}</p>
+    </div>
+    <div class="card">
+        <h3>Active Memberships</h3>
+        <p>{{ active_memberships }}</p>
+    </div>
+    <div class="card">
+        <h3>Today's Check-ins</h3>
+        <p>{{ today_checkins_count }}</p>
+    </div>
+    <div class="card">
+        <h3>Trainers</h3>
+        <p>{{ trainers_count }}</p>
+    </div>
+    <div class="card">
+        <h3>Classes Today</h3>
+        <p>{{ classes_today }}</p>
+    </div>
+
+    <div class="card">
+       <h3>Upcoming Classes</h3>
+       <p>{{ upcoming_classes }}</p>
+    </div>
+    <div class="card">
+        <h3>Total Payments</h3>
+        <!-- Payments displayed in Rands (ZAR), formatted to 2 decimal places -->
+        <p>R{{ "%.2f"|format(total_payments) }}</p>
+    </div>
+    <div class="card">
+        <h3>Most Popular Class</h3>
+        <p>{{ popular_class }}</p>
+    </div>
+    <div class="card">
+        <h3>Busiest Trainer</h3>
+        <p>{{ busy_trainer }}</p>
+    </div>
+</div>
+
+<!-- CHARTS SECTION -->
+<div class="charts-container">
+    <!-- Pie/Donut chart for Membership Status (Active vs Expired) -->
+    <div class="chart-card">
+        <h3>Membership Status</h3>
+        <canvas id="membershipChart"></canvas>
+    </div>
+
+    <!-- Monthly Payments Progress (last 6 months trend) -->
+    <div class="chart-card">
+        <h3>Monthly Payments (Last 6 Months)</h3>
+        <div class="payment-info">
+            <small>Showing actual payments received from members</small>
+        </div>
+        
+        <div id="revenue-trend">
+            {% if revenue_data and revenue_labels %}
+                {% for i in range(revenue_data|length) %}
+                    {# Extract variables for current month revenue, previous month, and calculate % change #}
+                    {% set current_amount = revenue_data[i] %}
+                    {% set month_name = revenue_labels[i] %}
+                    {% set prev_amount = revenue_data[i-1] if i > 0 else current_amount %}
+                    {% set change = ((current_amount - prev_amount) / prev_amount * 100) if prev_amount > 0 else 0 %}
+                    {% set max_amount = [revenue_data|max, 1]|max %}
+                    {% set progress_width = (current_amount / max_amount) * 100 %}
+                    
+                    <!-- Each revenue row (month) -->
+                    <div class="revenue-item">
+                        <div class="revenue-header">
+                            <div class="month-section">
+                                <strong class="month-name">{{ month_name }}:</strong>
+                                <span class="revenue-amount">R{{ "%.0f"|format(current_amount) }}</span>
+                            </div>
+                            <div class="change-section">
+                                <!-- Display % change (↗, ↘, →) depending on growth -->
+                                <span class="revenue-change {% if change > 0 %}positive{% elif change < 0 %}negative{% else %}neutral{% endif %}">
+                                    {% if i > 0 %}
+                                        {% if change > 0 %}↗ +{{ "%.1f"|format(change) }}%
+                                        {% elif change < 0 %}↘ {{ "%.1f"|format(change) }}%
+                                        {% else %}→ 0%
+                                        {% endif %}
+                                    {% else %}
+                                        ● First
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Progress bar to visualize relative revenue -->
+                        <div class="progress-bar">
+                            <div class="progress-fill" data-width="{{ progress_width }}"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- Fallback if no revenue data exists -->
+                <div class="no-revenue-data">
+                    <p>No payment records found yet.</p>
+                    <p class="no-data-subtext">
+                        Payments will appear here once members start making payments.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- QUICK MEMBER LOOKUP SECTION -->
+<div class="quick-actions-section">
+    <h3>🔍 Quick Member Lookup</h3>
+    <div class="quick-search-container">
+        <!-- Search box for members -->
+        <input type="text" id="quickSearch" placeholder="Type member name..." 
+               style="width: 300px; padding: 12px; border: 2px solid #667eea; border-radius: 10px; font-size: 16px;">
+        <button onclick="quickSearchMember()" class="btn-edit" style="margin-left: 10px; padding: 12px 20px;">
+            Search
+        </button>
+    </div>
+    <!-- Results will be injected here by JS -->
+    <div id="quickSearchResults" style="margin-top: 15px;"></div>
+</div>
+
+<!-- TODAY'S OVERVIEW SECTION -->
+<div class="todays-overview">
+    <h3>📋 Today's Overview</h3>
+    <div class="overview-cards">
+        <div class="overview-card">
+            <h4>⭐ Member Satisfaction</h4>
+            <p id="satisfactionScore" data-score="{{ member_satisfaction }}">
+                {{ "%.1f"|format(member_satisfaction) }}/5
+            </p>
+        </div>
+        <div class="overview-card">
+            <h4>⚠️ Memberships Expiring</h4>
+            <p id="expiringCount" data-count="{{ expiring_soon }}">{{ expiring_soon }}</p>
+        </div>
+        <div class="overview-card">
+            <h4>💳 Payments Due</h4>
+            <p id="paymentsDueCount" data-count="{{ payments_due }}">{{ payments_due }}</p>
+        </div>
+        <div class="overview-card">
+            <h4>📅 Classes Today</h4>
+            <p id="classesTodayCount" data-count="{{ classes_today }}">{{ classes_today }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- SMS REMINDERS SECTION -->
+<div class="sms-reminders-section">
+    <h3>📱 SMS Payment Reminders</h3>
+    
+    <!-- SMS-related stats -->
+    <div class="sms-stats">
+        <div class="sms-stat">
+            <h4>📞 Members With Phones</h4>
+            <p id="membersWithPhones">{{ members_with_phones }}/{{ total_members }}</p>
+        </div>
+        <div class="sms-stat">
+            <h4>🔔 Need Reminders</h4>
+            <p id="needingReminders">{{ members_needing_reminders }}</p>
+        </div>
+        <div class="sms-stat">
+            <h4>✅ Sent This Week</h4>
+            <p id="recentReminders">{{ recent_reminders }}</p>
+        </div>
+    </div>
+
+    <!-- SMS Actions -->
+    <div class="sms-actions">
+        <button onclick="loadMembersNeedingReminders()" class="btn-edit">
+            👀 View Members Needing SMS
+        </button>
+        <button onclick="sendTestReminder()" class="btn-edit">
+            🧪 Send Test Reminder
+        </button>
+    </div>
+
+    <!-- Hidden list that will be filled with reminder members via JS -->
+    <div id="reminderList" style="display: none; margin-top: 20px;">
+        <!-- Will be populated by JavaScript -->
+    </div>
+</div>
+
+<!-- RECENT MEMBERS TABLE -->
+<h2>Recent Members</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Membership</th>
+        <th>Expiry</th>
+        <th>Status</th>
+    </tr>
+    {% for m in recent_members %}
+    <tr>
+        <td>{{ m.name }}</td>
+        <td>{{ m.membership_type }}</td>
+        <td>{{ m.expiry_date }}</td>
+        <td>
+            {% if m.is_active() %}
+                <span class="status-active">Active</span>
+            {% else %}
+                <span class="status-expired">Expired</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- JS: Animate progress bars for revenue trend -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const progressFills = document.querySelectorAll('.progress-fill');
+    progressFills.forEach(fill => {
+        const width = fill.getAttribute('data-width');
+        if (width) {
+            setTimeout(() => {
+                fill.style.width = width + '%';
+            }, 200); // delay for smooth animation
+        }
+    });
+});
+</script>
+{% endblock %}
+
+
+
+
+
+

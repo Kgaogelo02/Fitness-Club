@@ -1,0 +1,44 @@
+{% extends "base.html" %}  
+{# This template extends the base.html layout #}
+
+{% block content %}
+<h1>Add Payment</h1>
+
+<div class="form-container">
+    <!-- Form to add a payment record -->
+    <form action="{{ url_for('add_payment') }}" method="POST"> 
+        
+        <!-- MEMBER DROPDOWN -->
+        <!-- Populated dynamically with members from the database -->
+        <label>Member</label>
+        <select name="member_id" required>
+            <option value="">Select Member</option>
+            {% for m in members %}
+                <option value="{{ m.id }}">{{ m.name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- PAYMENT AMOUNT -->
+        <!-- step="0.01" allows decimal amounts (e.g. 100.50) -->
+        <label>Amount</label>
+        <input type="number" step="0.01" name="amount" required>
+
+        <!-- PAYMENT DATE -->
+        <label>Date</label>
+        <input type="date" name="date" required>
+
+        <!-- PAYMENT METHOD DROPDOWN -->
+        <label>Payment Method</label>
+        <select name="method" required>
+            <option value="">Select Method</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="EFT">EFT</option>
+        </select>
+
+        <!-- SUBMIT BUTTON -->
+        <button type="submit">Add Payment</button>
+    </form>
+</div>
+{% endblock %}
+

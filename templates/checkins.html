@@ -1,0 +1,101 @@
+{% extends "base.html" %}  
+{# Inherit the base layout (sidebar, header, etc.) #}
+
+{% block content %}
+<h1>📊 Member Check-ins</h1>
+
+<!-- DASHBOARD CARDS showing stats -->
+<div class="dashboard-cards">
+    <!-- Card: Number of check-ins today -->
+    <div class="card">
+        <h3>Today's Check-ins</h3>
+        <!-- Count the number of today's check-ins -->
+        <p>{{ today_checkins|length }}</p>
+    </div>
+
+    <!-- Card: Number of check-ins this week -->
+    <div class="card">
+        <h3>This Week</h3>
+        <p>{{ week_checkins }}</p>
+    </div>
+
+    <!-- Card: Number of check-ins this month -->
+    <div class="card">
+        <h3>This Month</h3>
+        <p>{{ month_checkins }}</p>
+    </div>
+</div>
+
+<!-- TABLE OF TODAY'S CHECK-INS -->
+<h2>Today's Check-ins ({{ today }})</h2>
+
+{% if today_checkins %}
+<table>
+    <thead>
+        <tr>
+            <th>Member Name</th>
+            <th>Membership Type</th>
+            <th>Expiry Date</th>
+            <th>Check-in Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for checkin in today_checkins %}
+        <tr>
+            <!-- Member Name -->
+            <td>
+                {% if checkin.member %}
+                    {{ checkin.member.name }}
+                {% else %}
+                    <!-- If member was deleted but check-in record still exists -->
+                    <span style="color: #999;">Member Deleted</span>
+                {% endif %}
+            </td>
+
+            <!-- Membership Type -->
+            <td>
+                {% if checkin.member %}
+                    {{ checkin.member.membership_type }}
+                {% else %}
+                    <span style="color: #999;">N/A</span>
+                {% endif %}
+            </td>
+
+            <!-- Membership Expiry Date -->
+            <td>
+                {% if checkin.member %}
+                    {{ checkin.member.expiry_date }}
+                {% else %}
+                    <span style="color: #999;">N/A</span>
+                {% endif %}
+            </td>
+
+            <!-- Check-in Time formatted as HH:MM:SS -->
+            <td>{{ checkin.checkin_time.strftime('%H:%M:%S') }}</td>
+
+            <!-- Membership Status (Active/Expired) -->
+            <td>
+                {% if checkin.member %}
+                    {% if checkin.member.is_active() %}
+                        <!-- Active membership -->
+                        <span style="color: green; font-weight: bold;">● Active</span>
+                    {% else %}
+                        <!-- Expired membership -->
+                        <span style="color: red; font-weight: bold;">● Expired</span>
+                    {% endif %}
+                {% else %}
+                    <!-- No member linked (deleted) -->
+                    <span style="color: #999;">N/A</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<!-- Message if no check-ins recorded today -->
+<p>No check-ins today yet.</p>
+{% endif %}
+
+{% endblock %}

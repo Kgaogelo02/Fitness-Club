@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fitness Club - Mabutsi</title>
+
+    <!-- Link to external stylesheet stored in /static/style.css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Import Chart.js for data visualization (used for dashboards, charts, etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar">
+        <h2>Fitness Club - Mabutsi</h2>
+        <ul>
+            <!-- Navigation links to different parts of the system -->
+            <li><a href="/">🏠 Dashboard</a></li>
+            <li><a href="/members">👤 Members</a></li>
+            <li><a href="/trainers">💪 Trainers</a></li>
+            <li><a href="/classes">📅 Classes</a></li>
+            <li><a href="/checkins">📊 Check-ins</a></li> 
+            <li><a href="/payments">💳 Payments</a></li>
+            <!-- Flask route for logging out -->
+            <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+
+        <!-- FLASH MESSAGE SYSTEM -->
+        <!-- Displays temporary messages (success, info, errors) set with Flask's flash() -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <!-- Skip login error message to avoid showing "Invalid username/password" repeatedly -->
+                        {% if category != 'error' or not message.startswith('Invalid username/password') %}
+                            <div class="flash-message {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- CONTENT BLOCK -->
+        <!-- This block will be replaced by child templates (e.g., add_member.html, add_payment.html) -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Link to custom JavaScript stored in /static/script.js -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+

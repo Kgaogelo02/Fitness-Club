@@ -1,0 +1,50 @@
+{% extends "base.html" %} <!-- Inherit from base layout -->
+
+{% block content %}
+<h1>Members</h1>
+
+<!-- Button to navigate to the form for adding a new member -->
+<a href="{{ url_for('add_member') }}" class="btn-edit" style="margin-bottom:20px; display:inline-block;">➕ Add New Member</a>
+
+<!-- Table displaying all members -->
+<table>
+    <tr>
+        <th>Name</th> <!-- Member full name -->
+        <th>Membership Plan</th> <!-- Type of membership (Monthly, Yearly, etc.) -->
+        <th>Price</th> <!-- Membership price, fetched via get_price() method -->
+        <th>Expiry</th> <!-- Membership expiry date -->
+        <th>Status</th> <!-- Active or Expired based on is_active() -->
+        <th>Actions</th> <!-- Buttons for member actions -->
+    </tr>
+    {% for m in members %}
+    <tr>
+        <td>{{ m.name }}</td>
+        <td>{{ m.membership_type }}</td>
+        <td>R{{ m.get_price() }}</td>
+        <td>{{ m.expiry_date }}</td>
+        <td>
+            {% if m.is_active() %}
+                <!-- Show Active in green if membership is valid -->
+                <span style="color: green;">Active</span>
+            {% else %}
+                <!-- Show Expired in red if membership has expired -->
+                <span style="color: red;">Expired</span>
+            {% endif %}
+        </td>
+        <td>
+            <!-- Button to check-in the member -->
+            <a href="{{ url_for('checkin_member', member_id=m.id) }}" class="btn-edit">Check-in</a>
+            
+            <!-- Button to edit member details -->
+            <a href="{{ url_for('edit_member', id=m.id) }}" class="btn-edit">Edit</a>
+            
+            <!-- Button to delete member with confirmation popup -->
+            <a href="{{ url_for('delete_member', id=m.id) }}" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+
+
+

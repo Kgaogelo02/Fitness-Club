@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!-- Defines character encoding as UTF-8 -->
+    <title>Fitness Club - Login</title> <!-- Page title shown in browser tab -->
+    
+    <!-- Link to external CSS file stored in Flask's static folder -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Wrapper for the login form/page content -->
+    <div class="login-wrapper">
+        <!-- Jinja2 block where specific login content will be injected -->
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+

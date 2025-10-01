@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+.env.local
+fitness.db
+*.sqlite3
+instance/
+.vscode/
+.DS_Store

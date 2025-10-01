@@ -1,0 +1,43 @@
+{% extends "base.html" %}   <!-- Inherit from base layout -->
+
+{% block content %}
+<h2>✏️ Edit Class</h2>
+
+<div class="form-container">
+    <!-- Form to edit an existing gym class -->
+    <form method="POST" action="{{ url_for('edit_class', class_id=gym_class.id) }}">
+        
+        <!-- Class Name Input -->
+        <label for="name">Class Name</label>
+        <input type="text" name="name" id="name" value="{{ gym_class.name }}" required>
+
+        <!-- Trainer Selection Dropdown -->
+        <label for="trainer">Trainer:</label>
+        <select name="trainer" id="trainer" required>
+            <option value="">Select a Trainer</option>
+            {% for trainer in trainers %}
+            <!-- Pre-select trainer if it matches the current class trainer -->
+            <option value="{{ trainer.name }}" {% if gym_class.trainer == trainer.name %}selected{% endif %}>
+                {{ trainer.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <!-- Date Input -->
+        <label for="date">Date</label>
+        <input type="date" name="date" id="date" value="{{ gym_class.date }}" required>
+
+        <!-- Time Input -->
+        <label for="time">Time</label>
+        <input type="time" name="time" id="time" value="{{ gym_class.time }}" required>
+
+        <!-- Capacity Input -->
+        <label for="capacity">Capacity</label>
+        <input type="number" name="capacity" id="capacity" value="{{ gym_class.capacity }}" required>
+
+        <!-- Save Button -->
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+{% endblock %}
+

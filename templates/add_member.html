@@ -1,0 +1,65 @@
+{% extends "base.html" %}  
+{# Inherits layout structure from base.html #}
+
+{% block content %}
+<h1>Add New Member</h1>
+
+<div class="form-container">
+    <!-- Form for adding a new member -->
+    <form method="POST" action="{{ url_for('add_member') }}">
+        
+        <!-- FULL NAME FIELD -->
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter member name" required>
+
+        <!-- MEMBERSHIP TYPE DROPDOWN -->
+        <!-- onchange triggers toggleExpiry() to show/hide custom expiry date -->
+        <label for="membership_type">Membership Type</label>
+        <select id="membership_type" name="membership_type" required onchange="toggleExpiry(this.value)">
+            <option value="Monthly">Monthly</option>
+            <option value="Quarterly">Quarterly</option>
+            <option value="Yearly">Yearly</option>
+            <option value="Custom">Custom</option>
+        </select>
+
+        <!-- PHONE NUMBER FIELD -->
+        <!-- pattern enforces a 10-digit number starting with 0 (South African format) -->
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="0123456789" 
+            pattern="[0]{1}[0-9]{9}" title="10-digit number starting with 0">
+
+        <!-- EXPIRY DATE FIELD (only visible if 'Custom' is selected) -->
+        <div id="expiry-container" style="display:none; margin-top:10px;">
+            <label for="expiry">Expiry Date (only if Custom)</label>
+            <input type="date" id="expiry" name="expiry">
+        </div>
+
+        <!-- SUBMIT BUTTON -->
+        <button type="submit">Add Member</button>
+    </form>
+</div>
+
+<script>
+/* 
+ Function: toggleExpiry 
+ Shows the expiry date input only when "Custom" membership is selected.
+ Also makes the expiry field required only in that case.
+*/
+function toggleExpiry(value) {
+    const expiryContainer = document.getElementById("expiry-container");
+    const expiryInput = document.getElementById("expiry");
+
+    if (value === "Custom") {
+        expiryContainer.style.display = "block";   // show expiry date
+        expiryInput.required = true;               // make it mandatory
+    } else {
+        expiryContainer.style.display = "none";    // hide expiry date
+        expiryInput.required = false;              // not required anymore
+        expiryInput.value = "";                    // clear previous value
+    }
+}
+</script>
+{% endblock %}
+
+
+

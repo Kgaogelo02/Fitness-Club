@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!-- Character encoding for the page -->
+    <title>Login - Fitness Club - Mabutsi</title> <!-- Browser tab title -->
+    
+    <!-- Link to external CSS file from Flask's static folder -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Container for the login page content -->
+    <div class="login-container">
+        <!-- Box for the login form and messages -->
+        <div class="login-box">
+            <h2>Welcome to Fitness Club - Mabutsi</h2>
+            <h3>username: admin password: admin123</h3>
+            <!-- Display Flask flash messages (only errors shown here) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            {% if category == 'error' %}
+                                <div class="flash-message error">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Login form -->
+            <form class="login-form" method="POST" action="{{ url_for('login') }}">
+                
+                <!-- Username input -->
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" placeholder="Enter username" required>
+
+                <!-- Password input -->
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" placeholder="Enter password" required>
+
+                <!-- Submit button -->
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

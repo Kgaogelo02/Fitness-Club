@@ -1,0 +1,43 @@
+{% extends "base.html" %}  
+{# This tells Jinja2 to inherit the layout from base.html #}
+
+{% block content %}
+<h1>Add New Class</h1>
+
+<div class="form-container">
+    <!-- Form to add a new fitness class -->
+    <form action="{{ url_for('add_class') }}" method="POST">
+        
+        <!-- Input for class name -->
+        <label for="name">Class Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter class name" required>
+
+        <!-- Dropdown menu for selecting a trainer -->
+        <label for="trainer">Trainer</label>
+        <select name="trainer" required>
+            <option value="">Select a Trainer</option>
+            {% for t in trainers %}
+                <!-- Dynamically populate trainer names from the trainers list -->
+                <option value="{{ t.name }}">{{ t.name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Date input for class schedule -->
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" required>
+
+        <!-- Time input for class schedule -->
+        <label for="time">Time</label>
+        <input type="time" id="time" name="time" required>
+
+        <!-- Input for maximum number of participants -->
+        <label for="capacity">Capacity</label>
+        <input type="number" id="capacity" name="capacity" placeholder="Enter max participants" min="1" required>
+
+        <!-- Submit button -->
+        <button type="submit">Add Class</button>
+    </form>
+</div>
+{% endblock %}
+
+
