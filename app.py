@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import extract, func
 from collections import Counter
 from datetime import datetime, time, date, timedelta
+import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"         
@@ -893,20 +894,17 @@ def whoami():
 # -----------------------------
 # Run App
 # -----------------------------
-if __name__ == '__main__':
-    # Initialize DB and default admin
-    with app.app_context():
-        db.create_all()
-        if not User.query.filter_by(username="admin").first():
-            admin = User(username="admin", password="admin123", role="admin")
-            db.session.add(admin)
-            print("✅ Default admin created! Username: admin | Password: admin123")
-        
+@app.before_first_request
+def create_tables():
+    db.create_all()
+    if not User.query.filter_by(username="admin").first():
+        admin = User(username="admin", password="admin123", role="admin")
+        db.session.add(admin)
         db.session.commit()
+        print("✅ Default admin created! Username: admin | Password: admin123")
 
-    # Render requires dynamic PORT
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 
