@@ -35,7 +35,6 @@ class GymClass(db.Model):
     capacity = db.Column(db.Integer)
     
     def is_upcoming(self):
-        """Check if this class is in the future"""
         today = datetime.today().date()
         return self.date >= today
 
@@ -44,20 +43,14 @@ class Member(db.Model):
     name = db.Column(db.String(150), nullable=False)
     membership_type = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20)) 
-    expiry_date = db.Column(db.Date, nullable=False)     # store expiry as date
+    expiry_date = db.Column(db.Date, nullable=False)
 
     def is_active(self):
-        """Check if membership is still active."""
         today = datetime.today().date()
         return self.expiry_date >= today
 
     def get_price(self):
-        """Return membership price based on type."""
-        prices = {
-            'Monthly': 300,
-            'Quarterly': 800,
-            'Yearly': 3000
-        }
+        prices = {'Monthly': 300, 'Quarterly': 800, 'Yearly': 3000}
         return prices.get(self.membership_type, 0)
 
 class PaymentReminder(db.Model):
@@ -65,17 +58,16 @@ class PaymentReminder(db.Model):
     member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=False)
     reminder_type = db.Column(db.String(50))  # 'expiry_3_days', 'expiry_today', 'expired'
     sent_date = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), default='sent')  # 'sent', 'paid', 'ignored'
+    status = db.Column(db.String(50), default='sent')
     member = db.relationship('Member', backref='reminders')
 
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    date = db.Column(db.Date, nullable=False)   # use Date instead of String
+    date = db.Column(db.Date, nullable=False)
     method = db.Column(db.String(50))
     member = db.relationship('Member', backref='payments')
-
 
 class Checkin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -87,12 +79,10 @@ class Checkin(db.Model):
 # SMS Functions
 # -----------------------------
 def send_sms_reminder(member, reminder_type):
-    """Send SMS reminder to member (simulated for now)"""
     phone = member.phone
     if not phone:
         return False, "No phone number available"
     
-    # Create message based on reminder type
     today = datetime.today().date()
     days_until_expiry = (member.expiry_date - today).days
     
@@ -105,14 +95,12 @@ def send_sms_reminder(member, reminder_type):
     else:
         message = f"Hi {member.name}, friendly reminder from Fitness Club about your membership. Reply STOP to unsubscribe."
     
-    # Simulate SMS sending (replace with real SMS API later)
     print(f"📱 SMS TO {phone}: {message}")
     
-    # Log the reminder
     reminder = PaymentReminder(
         member_id=member.id,
         reminder_type=reminder_type,
-        status='simulated'  # Change to 'sent' when using real SMS
+        status='simulated'
     )
     db.session.add(reminder)
     db.session.commit()
@@ -892,10 +880,9 @@ def whoami():
     return f"Logged in as: {session.get('user')}"
 
 # -----------------------------
-# Run App
+# Initialize DB & Default Admin
 # -----------------------------
-@app.before_first_request
-def create_tables():
+with app.app_context():
     db.create_all()
     if not User.query.filter_by(username="admin").first():
         admin = User(username="admin", password="admin123", role="admin")
@@ -903,8 +890,12 @@ def create_tables():
         db.session.commit()
         print("✅ Default admin created! Username: admin | Password: admin123")
 
+# -----------------------------
+# Run App
+# -----------------------------
+port = int(os.environ.get("PORT", 5000))
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
 
 
 
