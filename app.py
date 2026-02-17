@@ -885,10 +885,10 @@ def whoami():
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username="admin").first():
-        admin = User(username="admin", password="admin123", role="admin")
+        admin = User(username="admin", password="Mabutsi@12", role="admin")
         db.session.add(admin)
         db.session.commit()
-        print("✅ Default admin created! Username: admin | Password: admin123")
+        print("✅ Default admin created! Username: admin | Password: Mabutsi@12")
 
 # -----------------------------
 # Run App
