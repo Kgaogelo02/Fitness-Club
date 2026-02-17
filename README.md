@@ -37,7 +37,7 @@ This app allows gym administrators to manage members, trainers, classes, payment
 
 > **Demo Credentials:**  
 > Username: `admin`  
-> Password: `admin123`  
+> Password: `Mabutsi@12`  
 
 ---
 
