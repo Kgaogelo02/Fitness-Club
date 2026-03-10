@@ -22,12 +22,12 @@ This app allows gym administrators to manage members, trainers, classes, payment
 6. **Send Reminders** for expiring memberships
 
 ## Typical Member Journey:
-1. 👤 Signs up IN PERSON at gym
-2. 📝 Staff creates account in this system
-3. 💳 Pays membership fee at front desk
-4. 🏋️ Gets physical access card/key fob
-5. ✅ Checks in by scanning card at gym entrance
-6. 📱 Receives SMS reminders (simulated) when membership nears expiry
+1.  Signs up IN PERSON at gym
+2.  Staff creates account in this system
+3.  Pays membership fee at front desk
+4.  Gets physical access card/key fob
+5.  Checks in by scanning card at gym entrance
+6.  Receives SMS reminders (simulated) when membership nears expiry
 
 ---
 
@@ -41,7 +41,7 @@ This app allows gym administrators to manage members, trainers, classes, payment
 
 ---
 
-## 🛠️ Features
+## Features
 
 ### 1. User Management
 - Secure login/logout system for staff
@@ -89,7 +89,7 @@ This app allows gym administrators to manage members, trainers, classes, payment
 - `/send_reminder/<member_id>` → Send simulated SMS reminder to member
 
 ---
-## 💻 Technologies Used
+## Technologies Used
 
 - **Backend:** Python, Flask, Flask-SQLAlchemy
 - **Database:** SQLite (with PostgreSQL compatibility)
