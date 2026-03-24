@@ -11,9 +11,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fitness.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# -----------------------------
-# Database Models
-# -----------------------------
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
@@ -75,9 +72,6 @@ class Checkin(db.Model):
     checkin_time = db.Column(db.DateTime, default=datetime.utcnow)
     member = db.relationship('Member', backref='checkins')
 
-# -----------------------------
-# SMS Functions
-# -----------------------------
 def send_sms_reminder(member, reminder_type):
     phone = member.phone
     if not phone:
@@ -107,16 +101,12 @@ def send_sms_reminder(member, reminder_type):
     
     return True, f"SMS reminder sent to {member.name}"
 
-# -----------------------------
-# Routes
-# -----------------------------
 @app.route('/')
 def index():
     if 'user' in session:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
-# Simple login for dev
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
@@ -129,7 +119,7 @@ def login():
             session['role'] = user.role
             return redirect(url_for('dashboard'))
         else:
-            # Store login error in session instead of flash
+            # Store login error in session
             flash("Invalid username/password", "error")
             return redirect(url_for('login'))
     return render_template("login.html")
@@ -146,22 +136,20 @@ def dashboard():
     if 'user' not in session:
         return redirect(url_for('login'))
 
-    # FIX: Get SA time (UTC+2) FIRST - before using it
     utc_now = datetime.utcnow()
     sa_offset = timedelta(hours=2)
     sa_now = utc_now + sa_offset
     sa_today = sa_now.date()
     today_sa_str = sa_today.strftime('%Y-%m-%d')
 
-    # Now calculate all your stats using SA time
     total_members = Member.query.count()
     active_memberships = sum(1 for m in Member.query.all() if m.is_active())
     trainers_count = Trainer.query.count()
     
-    # Count classes happening TODAY in SA time
+    # Count classes
     classes_today = GymClass.query.filter(GymClass.date == sa_today).count()
     
-    # Count UPCOMING classes with SA timezone
+    # Count UPCOMING classes
     all_classes_list = GymClass.query.all()
     upcoming_classes = 0
     for class_obj in all_classes_list:
@@ -170,7 +158,7 @@ def dashboard():
             class_time = datetime.strptime(class_obj.time, '%H:%M').time()
             class_datetime = datetime.combine(class_obj.date, class_time)
             
-            # Compare with current SA time
+            # Compare with current time
             if class_datetime > sa_now:
                 upcoming_classes += 1
         else:
@@ -206,12 +194,10 @@ def dashboard():
 
     recent_members = Member.query.order_by(Member.id.desc()).limit(5).all()
     
-    # Count today's check-ins using SA timezone
     all_checkins = Checkin.query.all()
     today_checkins_count = 0
     
     for checkin in all_checkins:
-        # Convert checkin time to SA time (UTC+2)
         checkin_sa_time = checkin.checkin_time + timedelta(hours=2)
         if checkin_sa_time.date() == sa_today:
             today_checkins_count += 1
@@ -230,9 +216,9 @@ def dashboard():
         member_satisfaction = 0.0
     member_satisfaction = max(1.0, min(5.0, member_satisfaction))
     
-    payments_due = expiring_soon  # Simple assumption for now
+    payments_due = expiring_soon 
 
-    # SMS Reminders Data - using SA time
+    # SMS Reminders Data
     members_with_phones = Member.query.filter(
         Member.phone.isnot(None),
         Member.phone != ''
@@ -244,16 +230,15 @@ def dashboard():
         Member.expiry_date <= sa_today + timedelta(days=3)
     ).count()
 
-    # Recent reminders sent (last 7 days using SA time)
+    # Recent reminders sent for the last 7 days
     recent_reminders = PaymentReminder.query.filter(
         PaymentReminder.sent_date >= datetime.utcnow() - timedelta(days=7)
     ).count()
 
-    # ACTUAL PAYMENTS - Last 6 months
+    #Last 6 months
     payment_data = []
     payment_labels = []
     
-    # Create last 6 months array
     months_data = []
     for i in range(5, -1, -1):
         month_date = sa_today - timedelta(days=30*i)
@@ -273,7 +258,6 @@ def dashboard():
                 month_data['total'] += payment.amount
                 break
     
-    # Prepare data for template
     for month_data in months_data:
         payment_data.append(month_data['total'])
         payment_labels.append(month_data['name'])
@@ -310,7 +294,6 @@ def api_search_members():
     if not query:
         return jsonify([])
     
-    # Simple search 
     members = Member.query.filter(
         Member.name.ilike(f'%{query}%')
     ).limit(10).all()
@@ -332,7 +315,6 @@ def api_members_needing_reminders():
     if 'user' not in session:
         return jsonify([])
     
-    # Use South Africa time
     sa_time = datetime.utcnow() + timedelta(hours=2)
     today_sa = sa_time.date()
     
@@ -389,11 +371,10 @@ def send_reminder(member_id):
     if not member.phone:
         return jsonify({'success': False, 'message': 'Member has no phone number'})
     
-    # Use South Africa time (UTC+2) for date calculations
     sa_time = datetime.utcnow() + timedelta(hours=2)
     today_sa = sa_time.date()
     
-    # Determine reminder type based on expiry date using SA time
+    # Determine reminder type based on expiry date
     days_until_expiry = (member.expiry_date - today_sa).days
     
     if days_until_expiry == 0:
@@ -450,9 +431,6 @@ def create_sample_payments():
     
     return f"Created {len(sample_payments)} sample payments for testing"
 
-# -----------------------------
-# Members CRUD
-# -----------------------------
 @app.route('/members')
 def members():
     if 'user' not in session:
@@ -471,7 +449,6 @@ def add_member():
         membership_type = request.form.get("membership_type", "").strip()
         phone = request.form.get("phone", "").strip()  # Get phone number
 
-        # Basic validation
         if not name or not membership_type:
             flash("Name and membership type are required.", "error")
             return redirect(url_for('add_member'))
@@ -507,7 +484,7 @@ def add_member():
             flash("Invalid expiry date format.", "error")
             return redirect(url_for('add_member'))
 
-        # Create member with phone number
+        # member with phone number
         new_member = Member(
             name=name, 
             membership_type=membership_type, 
@@ -524,7 +501,6 @@ def add_member():
             
         return redirect(url_for('members'))
 
-    # GET -> show form
     today_str = datetime.today().strftime('%Y-%m-%d')
     return render_template("add_member.html", today=today_str)
 
@@ -587,10 +563,6 @@ def delete_member(id):
     flash(f'Member {member.name} deleted.', 'success')
     return redirect(url_for('members'))
 
-# --------------------------------------------------
-# Classes / Trainers / Payments / Checkins
-# --------------------------------------------------
-
 @app.route('/classes')
 def classes():
     if 'user' not in session:
@@ -618,7 +590,7 @@ def add_class():
         new_class = GymClass(
             name=request.form['name'],
             trainer=request.form.get('trainer',''),
-            date=date_obj,  # ← FIXED: Now it's a date object
+            date=date_obj,
             time=request.form.get('time',''),
             capacity=request.form.get('capacity', None)
         )
@@ -645,7 +617,7 @@ def edit_class(class_id):
             
             gym_class.name = request.form['name']
             gym_class.trainer = request.form.get('trainer','')
-            gym_class.date = date_obj  # ← FIXED: Now it's a date object
+            gym_class.date = date_obj
             gym_class.time = request.form.get('time','')
             gym_class.capacity = request.form.get('capacity', None)
             
@@ -669,7 +641,6 @@ def delete_class(id):
     flash("Class deleted.", "success")
     return redirect(url_for('classes'))
 
-# Trainers
 @app.route('/trainers', methods=['GET', 'POST'])
 def trainers():
     if 'user' not in session:
@@ -715,7 +686,6 @@ def delete_trainer(id):
     flash(f'Trainer {trainer.name} deleted successfully!', 'success')
     return redirect(url_for('trainers'))
 
-# Payments
 @app.route('/payments')
 def payments():
     if 'user' not in session:
@@ -730,14 +700,13 @@ def add_payment():
         return redirect(url_for('login'))
     
     try:
-        # Convert the date string to a Python date object
         date_str = request.form['date']
         date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
         
         new_payment = Payment(
             member_id=int(request.form['member_id']),
             amount=float(request.form['amount']),
-            date=date_obj,  # ← FIXED: Now it's a date object
+            date=date_obj,
             method=request.form.get('method','')
         )
         db.session.add(new_payment)
@@ -767,13 +736,12 @@ def edit_payment(id):
     
     if request.method == 'POST':
         try:
-            # Convert the date string to a Python date object
             date_str = request.form['date']
             date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
             
             payment.member_id = int(request.form['member_id'])
             payment.amount = float(request.form['amount'])
-            payment.date = date_obj  # ← FIXED: Now it's a date object
+            payment.date = date_obj
             payment.method = request.form.get('method', '')
             
             db.session.commit()
@@ -815,7 +783,6 @@ def checkin_member(member_id):
     already = Checkin.query.filter(db.func.date(Checkin.checkin_time) == today_str,
                                    Checkin.member_id == member_id).first()
     if already:
-        # Add 2 hours for South Africa time (UTC+2)
         sa_time = already.checkin_time + timedelta(hours=2)
         flash(f'{member.name} already checked in today at {sa_time.strftime("%H:%M")}', 'warning')
         return redirect(url_for('members'))
@@ -824,7 +791,6 @@ def checkin_member(member_id):
     db.session.add(new_checkin)
     db.session.commit()
     
-    # Add 2 hours for South Africa time (UTC+2)
     sa_time = new_checkin.checkin_time + timedelta(hours=2)
     flash(f'{member.name} checked in at {sa_time.strftime("%H:%M:%S")}', 'success')
     return redirect(url_for('members'))
@@ -834,23 +800,19 @@ def checkins():
     if 'user' not in session:
         return redirect(url_for('login'))
     
-    # Simple approach: get all check-ins and filter by SA time
     all_checkins = Checkin.query.order_by(Checkin.checkin_time.desc()).all()
     
-    # Filter for today's check-ins in SA time (+2 hours)
     sa_time_now = datetime.utcnow() + timedelta(hours=2)
     today_sa = sa_time_now.date()
     
     today_checkins = []
     for checkin in all_checkins:
-        # Convert checkin time to SA time
         checkin_sa_time = checkin.checkin_time + timedelta(hours=2)
         if checkin_sa_time.date() == today_sa:
             today_checkins.append(checkin)
     
     valid_today_checkins = [c for c in today_checkins if c.member and c.member.is_active()]
     
-    # Count check-ins for week and month in SA time
     week_ago_sa = sa_time_now - timedelta(days=7)
     month_ago_sa = sa_time_now - timedelta(days=30)
     
@@ -879,20 +841,14 @@ def cleanup_checkins():
 def whoami():
     return f"Logged in as: {session.get('user')}"
 
-# -----------------------------
-# Initialize DB & Default Admin
-# -----------------------------
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username="admin").first():
         admin = User(username="admin", password="Mabutsi@12", role="admin")
         db.session.add(admin)
         db.session.commit()
-        print("✅ Default admin created! Username: admin | Password: Mabutsi@12")
+        print("Default admin created! Username: admin | Password: Mabutsi@12")
 
-# -----------------------------
-# Run App
-# -----------------------------
 port = int(os.environ.get("PORT", 5000))
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=port, debug=False)
