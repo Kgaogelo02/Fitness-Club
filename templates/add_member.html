@@ -5,15 +5,10 @@
 <h1>Add New Member</h1>
 
 <div class="form-container">
-    <!-- Form for adding a new member -->
     <form method="POST" action="{{ url_for('add_member') }}">
         
-        <!-- FULL NAME FIELD -->
         <label for="name">Full Name</label>
         <input type="text" id="name" name="name" placeholder="Enter member name" required>
-
-        <!-- MEMBERSHIP TYPE DROPDOWN -->
-        <!-- onchange triggers toggleExpiry() to show/hide custom expiry date -->
         <label for="membership_type">Membership Type</label>
         <select id="membership_type" name="membership_type" required onchange="toggleExpiry(this.value)">
             <option value="Monthly">Monthly</option>
@@ -22,8 +17,6 @@
             <option value="Custom">Custom</option>
         </select>
 
-        <!-- PHONE NUMBER FIELD -->
-        <!-- pattern enforces a 10-digit number starting with 0 (South African format) -->
         <label for="phone">Phone Number</label>
         <input type="tel" id="phone" name="phone" placeholder="0123456789" 
             pattern="[0]{1}[0-9]{9}" title="10-digit number starting with 0">
