@@ -1,8 +1,6 @@
-// Simple chart initialization
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded - initializing charts and revenue progress bars');
     
-    // Set progress bar widths for revenue trend
     const progressFills = document.querySelectorAll('.progress-fill');
     progressFills.forEach(fill => {
         const width = fill.getAttribute('data-width');
@@ -11,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Initialize today's overview counts
     document.getElementById('satisfactionScore').textContent = document.getElementById('satisfactionScore').getAttribute('data-score') + '/5';
     document.getElementById('expiringCount').textContent = document.getElementById('expiringCount').getAttribute('data-count') || '0';
     document.getElementById('paymentsDueCount').textContent = document.getElementById('paymentsDueCount').getAttribute('data-count') || '0';
