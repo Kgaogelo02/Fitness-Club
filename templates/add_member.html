@@ -26,15 +26,12 @@
             <label for="expiry">Expiry Date (only if Custom)</label>
             <input type="date" id="expiry" name="expiry">
         </div>
-
-        <!-- SUBMIT BUTTON -->
         <button type="submit">Add Member</button>
     </form>
 </div>
 
 <script>
 /* 
- Function: toggleExpiry 
  Shows the expiry date input only when "Custom" membership is selected.
  Also makes the expiry field required only in that case.
 */
@@ -43,12 +40,12 @@ function toggleExpiry(value) {
     const expiryInput = document.getElementById("expiry");
 
     if (value === "Custom") {
-        expiryContainer.style.display = "block";   // show expiry date
-        expiryInput.required = true;               // make it mandatory
+        expiryContainer.style.display = "block";
+        expiryInput.required = true;
     } else {
-        expiryContainer.style.display = "none";    // hide expiry date
-        expiryInput.required = false;              // not required anymore
-        expiryInput.value = "";                    // clear previous value
+        expiryContainer.style.display = "none";
+        expiryInput.required = false;
+        expiryInput.value = "";
     }
 }
 </script>
