@@ -31,7 +31,7 @@ This app allows gym administrators to manage members, trainers, classes, payment
 
 ---
 
-## 🔗 Live Demo
+##  Live Demo
 
 [View the live app on Render](https://fitness-club-jfd8.onrender.com)
 
