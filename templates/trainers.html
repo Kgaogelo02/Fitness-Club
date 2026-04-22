@@ -1,15 +1,11 @@
-{% extends "base.html" %} <!-- Inherit from base template -->
+{% extends "base.html" %}
 
 {% block content %}
 <h1>Trainers</h1>
 
-<!-- Form to add a new trainer -->
 <div class="form-container">
     <form method="POST" action="/trainers">
-        <!-- Trainer name input -->
         <input type="text" name="name" placeholder="Trainer Name" required>
-        
-        <!-- Specialty dropdown -->
         <select name="specialty" required>
             <option value="">Select Specialty</option>
             <option value="Personal Training">Personal Training</option>
@@ -26,21 +22,17 @@
             <option value="Senior Fitness">Senior Fitness</option>
         </select>
         
-        <!-- Contact info input -->
         <input type="text" name="contact" placeholder="Contact Info" required>
-        
-        <!-- Submit button to add trainer -->
         <button type="submit">Add Trainer</button>
     </form>
 </div>
 
-<!-- Table displaying all trainers -->
 <table>
     <tr>
-        <th>Name</th> <!-- Trainer name -->
-        <th>Specialty</th> <!-- Trainer specialty -->
-        <th>Contact</th> <!-- Contact information -->
-        <th>Actions</th> <!-- Edit/Delete buttons -->
+        <th>Name</th>
+        <th>Specialty</th>
+        <th>Contact</th>
+        <th>Actions</th>
     </tr>
     {% for t in trainers %}
     <tr>
@@ -48,9 +40,7 @@
         <td>{{ t.specialty }}</td>
         <td>{{ t.contact }}</td>
         <td>
-            <!-- Edit trainer button -->
             <a href="{{ url_for('edit_trainer', id=t.id) }}" class="btn-edit">Edit</a>
-            <!-- Delete trainer button with confirmation popup -->
             <a href="{{ url_for('delete_trainer', id=t.id) }}" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
         </td>
     </tr>
