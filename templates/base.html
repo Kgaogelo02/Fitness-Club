@@ -20,7 +20,6 @@
         </ul>
     </div>
     <div class="main-content">
-        <!-- Displays temporary messages (success, info, errors) set with Flask's flash() -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="flash-messages">
